@@ -120,12 +120,16 @@ func (cd *CategoryDetails) DeleteCategory(db *sql.DB) error {
 }
 
 func (cd *CategoryDetails) UpdateCategory(db *sql.DB) error {
+	var rowEffected int64
+
 	if cd.CategoryName != "" {
 		stmt, err := db.Prepare("update  category set category_name = ? where category_id= ?")
 		if err != nil{
 			return err
 		}
-		_, err = stmt.Exec(cd.CategoryName, cd.CategoryId)
+		res, err := stmt.Exec(cd.CategoryName, cd.CategoryId)
+		rows, _ := res.RowsAffected()
+		rowEffected += rows
 		if err != nil{
 			return err
 		}
@@ -135,12 +139,17 @@ func (cd *CategoryDetails) UpdateCategory(db *sql.DB) error {
 		if err != nil{
 			return err
 		}
-		_, err = stmt.Exec(cd.ParentCategoryId, cd.CategoryId)
+		res, err := stmt.Exec(cd.ParentCategoryId, cd.CategoryId)
+		rows, _ := res.RowsAffected()
+		rowEffected += rows
 		if err != nil{
 			return err
 		}
 	}
 
+	if rowEffected == 0 {
+		return sql.ErrNoRows
+	}
 	return nil
 }
 

@@ -73,45 +73,58 @@ func (vd *VariantDetails) DeleteVariant(db *sql.DB) error {
 
 
 func (vd *VariantDetails) UpdateVariant(db *sql.DB) error {
+	var rowEffected int64
 	if vd.VariantName != "" {
 		stmt, err := db.Prepare("update  variant set variant_name = ? where variant_id= ?")
 		if err != nil{
 			return err
 		}
-		_, err = stmt.Exec(vd.VariantName, vd.VariantId)
+		res, err := stmt.Exec(vd.VariantName, vd.VariantId)
+		rows, _ := res.RowsAffected()
+		rowEffected += rows
 		if err != nil{
 			return err
 		}
+
 	}
 	if vd.Mrp != -1 {
 		stmt, err := db.Prepare("update  variant set mrp = ? where variant_id= ?")
 		if err != nil{
 			return err
 		}
-		_, err = stmt.Exec(vd.Mrp, vd.VariantId)
+		res, err := stmt.Exec(vd.Mrp, vd.VariantId)
+		rows, _ := res.RowsAffected()
+		rowEffected += rows
 		if err != nil{
 			return err
 		}
+
 	}
 	if vd.DiscountPrice != -1 {
 		stmt, err := db.Prepare("update  variant set discount_price = ? where variant_id= ?")
 		if err != nil{
 			return err
 		}
-		_, err = stmt.Exec(vd.DiscountPrice, vd.VariantId)
+		res, err := stmt.Exec(vd.DiscountPrice, vd.VariantId)
+		rows, _ := res.RowsAffected()
+		rowEffected += rows
 		if err != nil{
 			return err
 		}
+
 	}
 	if vd.Size != "" {
 		stmt, err := db.Prepare("update  variant set size = ? where variant_id= ?")
 		if err != nil{
 			return err
 		}
-		_, err = stmt.Exec(vd.Size, vd.VariantId)
+		res, err := stmt.Exec(vd.Size, vd.VariantId)
+		rows, _ := res.RowsAffected()
+		rowEffected += rows
 		if err != nil{
 			return err
 		}
+
 	}
 	if vd.Colour != "" {
 
@@ -119,22 +132,29 @@ func (vd *VariantDetails) UpdateVariant(db *sql.DB) error {
 		if err != nil{
 			return err
 		}
-		_, err = stmt.Exec(vd.Colour, vd.VariantId)
+		res, err := stmt.Exec(vd.Colour, vd.VariantId)
+		rows, _ := res.RowsAffected()
+		rowEffected += rows
 		if err != nil{
 			return err
 		}
-
 	}
 	if vd.ProductId != -1 {
 		stmt, err := db.Prepare("update  variant set product_id = ? where variant_id= ?")
 		if err != nil{
 			return err
 		}
-		_, err = stmt.Exec(vd.ProductId, vd.VariantId)
+		res, err := stmt.Exec(vd.ProductId, vd.VariantId)
+		rows, _ := res.RowsAffected()
+		rowEffected += rows
 		if err != nil{
 			return err
 		}
+
 	}
 
+	if rowEffected == 0 {
+		return sql.ErrNoRows
+	}
 	return nil
 }

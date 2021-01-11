@@ -112,6 +112,8 @@ paths:
       responses:
         "200":
           description: Variant entry updated
+        "500":
+          description: No rows in result set
     delete:
       tags:
         - variant
@@ -216,6 +218,8 @@ paths:
       responses:
         "200":
           description: Product entry updated
+        "500":
+          description: No rows in result set
     delete:
       tags:
         - product
@@ -307,6 +311,8 @@ paths:
       responses:
         "200":
           description: Category entry updated
+        "500":
+          description: No rows in result set
     delete:
       tags:
         - category

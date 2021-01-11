@@ -143,12 +143,15 @@ func (pd *ProductDetails) DeleteProduct(db *sql.DB) error {
 }
 
 func (pd *ProductDetails) UpdateProduct(db *sql.DB) error {
+	var rowEffected int64
 	if pd.ProductName != "" {
 		stmt, err := db.Prepare("update  product set product_name = ? where product_id= ?")
 		if err != nil{
 			return err
 		}
-		_, err = stmt.Exec(pd.ProductName, pd.ProductId)
+		res, err := stmt.Exec(pd.ProductName, pd.ProductId)
+		rows, _ := res.RowsAffected()
+		rowEffected += rows
 		if err != nil{
 			return err
 		}
@@ -158,7 +161,9 @@ func (pd *ProductDetails) UpdateProduct(db *sql.DB) error {
 		if err != nil{
 			return err
 		}
-		_, err = stmt.Exec(pd.Description, pd.ProductId)
+		res, err := stmt.Exec(pd.Description, pd.ProductId)
+		rows, _ := res.RowsAffected()
+		rowEffected += rows
 		if err != nil{
 			return err
 		}
@@ -168,10 +173,15 @@ func (pd *ProductDetails) UpdateProduct(db *sql.DB) error {
 		if err != nil{
 			return err
 		}
-		_, err = stmt.Exec(pd.ProductImageUrl, pd.ProductId)
+		res, err := stmt.Exec(pd.ProductImageUrl, pd.ProductId)
+		rows, _ := res.RowsAffected()
+		rowEffected += rows
 		if err != nil{
 			return err
 		}
+	}
+	if rowEffected == 0 {
+		return sql.ErrNoRows
 	}
 	return nil
 }

@@ -49,10 +49,11 @@ func respondWithError(w http.ResponseWriter, code int, message string) {
 
 func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 	response, _ := json.Marshal(payload)
-
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
-	w.Write(response)
+	if payload != nil {
+		w.Write(response)
+	}
 }
 
 
@@ -171,7 +172,7 @@ func (pcs *ProductCatalogueService) updateVariant(w http.ResponseWriter, r *http
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, variant)
+	respondWithJSON(w, http.StatusOK, nil)
 }
 
 func (pcs *ProductCatalogueService) deleteVariant(w http.ResponseWriter, r *http.Request) {

@@ -189,7 +189,6 @@ func GenerateUrl(){
 		"product_name": "hair growth",
 		"description": "grow hair again",
 		"url": "https://www.amazon.in/growth-?dchild=1&keywords=puma+shirt&qid=1610287417&sr=8-3",
-		"category_ids": "3,1",
 	}
 
 	urlList = append(urlList,PrintUrl(pro_update_1, pro_update_path,"product update url1: "))

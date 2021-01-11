@@ -90,32 +90,12 @@ func (pcs *ProductCatalogueService) updateProduct(w http.ResponseWriter, r *http
 		respondWithError(w, http.StatusBadRequest, "Invalid product ID")
 		return
 	}
-	//pro_update_1 := map[string]string{
-	//
-	//	"category_ids": "3,1",
-	//}
 
 	queryParam := r.URL.Query()
-
-
 	product := model.ProductDetails{ProductId: id}
 	product.ProductName = queryParam.Get("product_name")
 	product.Description = queryParam.Get("description")
 	product.ProductImageUrl = queryParam.Get("url")
-
-
-	//if productIdStr := queryParam.Get("product_id");productIdStr != "" {
-	//	productId, err := strconv.ParseInt(productIdStr, 10,64)
-	//	if err != nil {
-	//		respondWithError(w, http.StatusBadRequest, "Invalid product id")
-	//		return
-	//	}else {
-	//		variant.ProductId = productId
-	//	}
-	//}else{
-	//	variant.ProductId = -1
-	//}
-
 
 
 	if err := product.UpdateProduct(pcs.DB); err != nil {
@@ -123,7 +103,7 @@ func (pcs *ProductCatalogueService) updateProduct(w http.ResponseWriter, r *http
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, product)
+	respondWithJSON(w, http.StatusOK, nil)
 }
 
 

@@ -109,7 +109,7 @@ func (pcs *ProductCatalogueService) updateCategory(w http.ResponseWriter, r *htt
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, category)
+	respondWithJSON(w, http.StatusOK, nil)
 }
 
 
