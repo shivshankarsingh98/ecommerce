@@ -1,10 +1,10 @@
 # ecommerce
 
-1) Start the mysql 
+1) Start the mysql server 
 
 2) Clone the repository
    ```
-    git clone https://github.com/shivshankarsingh98/redis-monitor.git
+    git clone https://github.com/shivshankarsingh98/ecommerce.git
    ```
 
 3) Set GOPATH
@@ -39,14 +39,3 @@
    ```
    go run main.go
    ```
-
-8) Open the below address in browser and click button "Stream Redis Metrics"
-   ```
-   http://127.0.0.1:8080/
-   ```
-
-
-   ```
-
-
-
