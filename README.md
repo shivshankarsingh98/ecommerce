@@ -38,3 +38,6 @@
    ```
    go run main.go
    ```
+   
+8) Example product catalouge
+![alt text](https://github.com/shivshankarsingh98/ecommerce/blob/main/example-product-catalogue.jpeg?raw=true)
