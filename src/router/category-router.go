@@ -127,5 +127,5 @@ func (pcs *ProductCatalogueService) deleteCategory(w http.ResponseWriter, r *htt
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	respondWithJSON(w, http.StatusOK, category)
+	respondWithJSON(w, http.StatusOK, nil)
 }

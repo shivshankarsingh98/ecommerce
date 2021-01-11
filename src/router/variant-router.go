@@ -189,7 +189,7 @@ func (pcs *ProductCatalogueService) deleteVariant(w http.ResponseWriter, r *http
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	respondWithJSON(w, http.StatusOK, variant)
+	respondWithJSON(w, http.StatusOK, nil)
 
 
 }
