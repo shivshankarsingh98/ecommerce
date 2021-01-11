@@ -16,19 +16,6 @@ type ProductDetails struct {
 	CategoryIds       []int64            `json:"category_ids,omitempty"`
 }
 
-//CREATE TABLE product (
-//product_id INT(6)  PRIMARY KEY,
-//product_name VARCHAR(30) NOT NULL,
-//description VARCHAR(100),
-//url VARCHAR(100),
-//);
-//
-//CREATE TABLE product_category (
-//product_id INT(6) ,
-//category_id INT(6) ,
-//);
-
-
 func (pd *ProductDetails) GetProduct(db *sql.DB) error {
 	results, err := db.Query("select * from product where product_id = ?", pd.ProductId)
 	if err != nil {
@@ -57,8 +44,48 @@ func (pd *ProductDetails) GetProduct(db *sql.DB) error {
 	return nil
 }
 
-func (pd *ProductDetails) updateProduct(db *sql.DB) error {
-	return errors.New("Not implemented")
+func (pd *ProductDetails) CreateProduct(db *sql.DB) error {
+	stmt, err := db.Prepare("INSERT INTO product (product_id, product_name, description,url) VALUES (?, ?, ?, ?)")
+	if err != nil{
+		return err
+	}
+	_, err = stmt.Exec(pd.ProductId, pd.ProductName, pd.Description, pd.ProductImageUrl)
+	if err != nil {
+		return err
+	}
+
+	insertCheck := make(chan bool)
+	defer close(insertCheck)
+
+	for _, categortId :=  range pd.CategoryIds {
+		go CreateProductCategoryRelation(db,pd.ProductId,categortId,insertCheck)
+	}
+
+	totalCategoryId := len(pd.CategoryIds)
+
+	for totalCategoryId > 0 {
+		check := <- insertCheck
+		if check == false {
+			return errors.New("Error while inserting into product_category table")
+		}
+		totalCategoryId -= 1
+	}
+
+	return nil
+}
+
+func CreateProductCategoryRelation(db *sql.DB, productId, categoryId int64, insertCheck chan bool) {
+	stmt, err := db.Prepare("INSERT INTO product_category (product_id, category_id) VALUES (?, ?)")
+	if err != nil{
+		log.Println("Error in  product-category relation query: ", err)
+		insertCheck <- false
+	}
+	_, err = stmt.Exec(productId, categoryId)
+	if err != nil {
+		log.Println("Error while executing product-category relation query: ", err)
+		insertCheck <- false
+	}
+	insertCheck <- true
 }
 
 func (pd *ProductDetails) DeleteProduct(db *sql.DB) error {
@@ -115,51 +142,39 @@ func (pd *ProductDetails) DeleteProduct(db *sql.DB) error {
 	return nil
 }
 
-
-func CreateProductCategoryRelation(db *sql.DB, productId, categoryId int64, insertCheck chan bool) {
-	stmt, err := db.Prepare("INSERT INTO product_category (product_id, category_id) VALUES (?, ?)")
-	if err != nil{
-		log.Println("Error in  product-category relation query: ", err)
-		insertCheck <- false
-	}
-	_, err = stmt.Exec(productId, categoryId)
-	if err != nil {
-		log.Println("Error while executing product-category relation query: ", err)
-		insertCheck <- false
-	}
-	insertCheck <- true
-}
-
-func (pd *ProductDetails) CreateProduct(db *sql.DB) error {
-	stmt, err := db.Prepare("INSERT INTO product (product_id, product_name, description,url) VALUES (?, ?, ?, ?)")
-	if err != nil{
-		return err
-	}
-	_, err = stmt.Exec(pd.ProductId, pd.ProductName, pd.Description, pd.ProductImageUrl)
-	if err != nil {
-		return err
-	}
-
-	insertCheck := make(chan bool)
-	defer close(insertCheck)
-
-	for _, categortId :=  range pd.CategoryIds {
-		go CreateProductCategoryRelation(db,pd.ProductId,categortId,insertCheck)
-	}
-
-	totalCategoryId := len(pd.CategoryIds)
-
-	for totalCategoryId > 0 {
-		check := <- insertCheck
-		if check == false {
-			return errors.New("Error while inserting into product_category table")
+func (pd *ProductDetails) UpdateProduct(db *sql.DB) error {
+	if pd.ProductName != "" {
+		stmt, err := db.Prepare("update  product set product_name = ? where product_id= ?")
+		if err != nil{
+			return err
 		}
-		totalCategoryId -= 1
+		_, err = stmt.Exec(pd.ProductName, pd.ProductId)
+		if err != nil{
+			return err
+		}
 	}
-
+	if pd.Description != "" {
+		stmt, err := db.Prepare("update  product set description = ? where product_id= ?")
+		if err != nil{
+			return err
+		}
+		_, err = stmt.Exec(pd.Description, pd.ProductId)
+		if err != nil{
+			return err
+		}
+	}
+	if pd.ProductImageUrl != "" {
+		stmt, err := db.Prepare("update  product set url = ? where product_id= ?")
+		if err != nil{
+			return err
+		}
+		_, err = stmt.Exec(pd.ProductImageUrl, pd.ProductId)
+		if err != nil{
+			return err
+		}
+	}
 	return nil
 }
-
 
 func GetChildVariantsIdsList(db *sql.DB, productId int64) ([]int64,error) {
 	results, err := db.Query("select variant_id from variant where product_id = ?", productId)

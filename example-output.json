@@ -1,0 +1,90 @@
+{
+  "category_id": 0,
+  "category_name": "amazon",
+  "child_categories": [
+    {
+      "category_id": 1,
+      "category_name": "cosmetic",
+      "products": [
+        {
+          "product_id": 15,
+          "name": "hair growth",
+          "description": "grow hair again",
+          "product_image_url": "https://www.amazon.in/growth-?dchild=1&keywords=puma+shirt&qid=1610287417&sr=8-3",
+          "variants": [
+            {
+              "variant_id": 59,
+              "mrp": 767,
+              "size": "90ml"
+            }
+          ]
+        }
+      ],
+      "child_categories": [
+        {
+          "category_id": 3,
+          "category_name": "hair",
+          "products": [
+            {
+              "product_id": 15,
+              "name": "hair growth",
+              "description": "grow hair again",
+              "product_image_url": "https://www.amazon.in/growth-?dchild=1&keywords=puma+shirt&qid=1610287417&sr=8-3",
+              "variants": [
+                {
+                  "variant_id": 59,
+                  "mrp": 767,
+                  "size": "90ml"
+                }
+              ]
+            },
+            {
+              "product_id": 22,
+              "name": "shampoo",
+              "description": "frient for your hair",
+              "product_image_url": "https://www.jabing.in/shampo-?dc",
+              "variants": [
+                {
+                  "variant_id": 39,
+                  "name": "quantity",
+                  "mrp": 459.2222,
+                  "size": "60ml"
+                },
+                {
+                  "variant_id": 36,
+                  "name": "quantity",
+                  "mrp": 549.2222,
+                  "discount_price": 100,
+                  "size": "30ml"
+                }
+              ]
+            },
+            {
+              "product_id": 26,
+              "name": "conditioner",
+              "description": "smothing for hair",
+              "product_image_url": "https://www.myntra.in/cmooth-?dchild=1&keywords=puma+shirt&qid=1610287417&sr=8-3",
+              "variants": [
+                {
+                  "variant_id": 40,
+                  "mrp": 949.2222,
+                  "discount_price": 345.6,
+                  "size": "large"
+                },
+                {
+                  "variant_id": 50,
+                  "mrp": 249.2222,
+                  "size": "medium"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "category_id": 2,
+      "category_name": "education"
+    }
+  ]
+}

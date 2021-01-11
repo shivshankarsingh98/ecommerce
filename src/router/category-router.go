@@ -12,7 +12,7 @@ import (
 func (pcs *ProductCatalogueService) initializeCategoryRoutes() {
 	pcs.Router.HandleFunc("/category", pcs.createCategory).Methods("POST")//create category
 	pcs.Router.HandleFunc("/category/{id:[0-9]+}", pcs.getCategory).Methods("GET")//get category
-	//pcs.Router.HandleFunc("/category/{id:[0-9]+}", pcs.updateCategory).Methods("PUT")//update category
+	pcs.Router.HandleFunc("/category/{id:[0-9]+}", pcs.updateCategory).Methods("PUT")//update category
 	pcs.Router.HandleFunc("/category/{id:[0-9]+}", pcs.deleteCategory).Methods("DELETE")//delete category
 }
 
@@ -78,33 +78,40 @@ func (pcs *ProductCatalogueService) createCategory(w http.ResponseWriter, r *htt
 }
 
 
-//func (pcs *ProductCatalogueService) updateCategory(w http.ResponseWriter, r *http.Request) {
-//  log.Println("PUT category Request from: ",r.RemoteAddr)
+func (pcs *ProductCatalogueService) updateCategory(w http.ResponseWriter, r *http.Request) {
+	log.Println("PUT category Request from: ",r.RemoteAddr)
 
-//	vars := mux.Vars(r)
-//	id, err := strconv.Atoi(vars["id"])
-//	if err != nil {
-//		respondWithError(w, http.StatusBadRequest, "Invalid product ID")
-//		return
-//	}
-//
-//	var p product
-//	decoder := json.NewDecoder(r.Body)
-//	if err := decoder.Decode(&p); err != nil {
-//		respondWithError(w, http.StatusBadRequest, "Invalid resquest payload")
-//		return
-//	}
-//	defer r.Body.Close()
-//	p.ID = id
-//
-//	if err := p.updateCategory(a.DB); err != nil {
-//		respondWithError(w, http.StatusInternalServerError, err.Error())
-//		return
-//	}
-//
-//	respondWithJSON(w, http.StatusOK, p)
-//}
-//
+	vars := mux.Vars(r)
+	id, err := strconv.ParseInt(vars["id"], 10, 64)
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, "Invalid product ID")
+		return
+	}
+
+	queryParam := r.URL.Query()
+	category := model.CategoryDetails{CategoryId: id}
+	category.CategoryName = queryParam.Get("category_name")
+
+	if parentCategoryIdStr := queryParam.Get("parent_category_id");parentCategoryIdStr != "" {
+		parentCategoryId, err := strconv.ParseInt(parentCategoryIdStr, 10,64)
+		if err != nil {
+			respondWithError(w, http.StatusBadRequest, "Invalid parent category id")
+			return
+		}else {
+			category.ParentCategoryId = parentCategoryId
+		}
+	}else{
+		category.ParentCategoryId = -1
+	}
+
+	if err := category.UpdateCategory(pcs.DB); err != nil {
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	respondWithJSON(w, http.StatusOK, category)
+}
+
 
 func (pcs *ProductCatalogueService) deleteCategory(w http.ResponseWriter, r *http.Request) {
 	log.Println("DELETE category Request from: ",r.RemoteAddr)

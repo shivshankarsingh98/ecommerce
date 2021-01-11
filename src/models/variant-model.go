@@ -16,14 +16,6 @@ type VariantDetails struct {
 	ProductId     int64   `json:"product_id,omitempty"`
 }
 
-//variant_id INT(6)  PRIMARY KEY,
-//variant_name VARCHAR(30) ,
-//mrp FLOAT(6) NOT NULL,
-//discount_price FLOAT(6),
-//size VARCHAR(20),
-//color VARCHAR(50),
-//product_id INT(6) NOT NULL
-
 func (vd *VariantDetails) GetVariant(db *sql.DB) error {
 
 	results, err := db.Query("select * from variant where variant_id = ?", vd.VariantId)
@@ -46,6 +38,39 @@ func (vd *VariantDetails) GetVariant(db *sql.DB) error {
 	}
 	return nil
 }
+
+func (vd *VariantDetails) CreateVariant(db *sql.DB) error {
+	stmt, err := db.Prepare("INSERT INTO variant (variant_id, variant_name, mrp,discount_price, size, color, product_id) VALUES (?, ?, ?, ?, ?, ?, ? )")
+	if err != nil{
+		return err
+	}
+	_, err = stmt.Exec(vd.VariantId, vd.VariantName, vd.Mrp, vd.DiscountPrice, vd.Size, vd.Colour, vd.ProductId)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (vd *VariantDetails) DeleteVariant(db *sql.DB) error {
+	stmt, err := db.Prepare("delete from variant where variant_id=?")
+	if err != nil{
+		return err
+	}
+	res, err := stmt.Exec(vd.VariantId)
+	if err != nil {
+		return err
+	}else {
+		rowEffected, err1 := res.RowsAffected()
+		if err1 != nil {
+			return err1
+		} else if rowEffected == 0 {
+			errMsg := "No variant present with id: " +strconv.FormatInt(vd.VariantId, 10)
+			return errors.New(errMsg)
+		}
+	}
+	return nil
+}
+
 
 func (vd *VariantDetails) UpdateVariant(db *sql.DB) error {
 	if vd.VariantName != "" {
@@ -111,39 +136,5 @@ func (vd *VariantDetails) UpdateVariant(db *sql.DB) error {
 		}
 	}
 
-	return nil
-}
-
-func (vd *VariantDetails) DeleteVariant(db *sql.DB) error {
-	stmt, err := db.Prepare("delete from variant where variant_id=?")
-	if err != nil{
-		return err
-	}
-	res, err := stmt.Exec(vd.VariantId)
-	if err != nil {
-		return err
-	}else {
-		rowEffected, err1 := res.RowsAffected()
-		if err1 != nil {
-			return err1
-		} else if rowEffected == 0 {
-			errMsg := "No variant present with id: " +strconv.FormatInt(vd.VariantId, 10)
-			return errors.New(errMsg)
-		}
-	}
-	return nil
-}
-
-
-func (vd *VariantDetails) CreateVariant(db *sql.DB) error {
-
-	stmt, err := db.Prepare("INSERT INTO variant (variant_id, variant_name, mrp,discount_price, size, color, product_id) VALUES (?, ?, ?, ?, ?, ?, ? )")
-	if err != nil{
-		return err
-	}
-	_, err = stmt.Exec(vd.VariantId, vd.VariantName, vd.Mrp, vd.DiscountPrice, vd.Size, vd.Colour, vd.ProductId)
-	if err != nil {
-		return err
-	}
 	return nil
 }

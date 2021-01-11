@@ -15,11 +15,134 @@ type CategoryDetails struct {
 	ChildCategories    []*CategoryDetails  `json:"child_categories,omitempty"`
 }
 
-//CREATE TABLE category (
-//category_id INT(6)  PRIMARY KEY,
-//category_name VARCHAR(30) NOT NULL,
-//parent_category_id INT(6)
-//);
+func (cd *CategoryDetails) GetCategory(db *sql.DB) error {
+	categoryQueue := []*CategoryDetails{}
+
+	queryResult, err := db.Query("select category_name from category where category_id = ?", cd.CategoryId)
+	if err != nil {
+		return err
+	}
+	has_results := false
+	for queryResult.Next() {
+		has_results = true
+		err = queryResult.Scan(&cd.CategoryName)
+		if err != nil {
+			return err
+		}
+	}
+	if (!has_results) {
+		return sql.ErrNoRows
+	}
+
+	categoryDetails := CategoryDetails{CategoryId: cd.CategoryId, CategoryName: cd.CategoryName}
+	categoryQueue = append(categoryQueue,&categoryDetails)
+	rootCategory := categoryQueue[0]
+
+	for len(categoryQueue)>=1 {
+		currentCategory := categoryQueue[0]
+		results, err := db.Query("select category_id,category_name from category where parent_category_id = ?", currentCategory.CategoryId)
+		if err != nil {
+			return err
+		}
+		productDetailsList := GetChildProductsList(db,currentCategory.CategoryId)
+		if len(productDetailsList) >=1 {
+			currentCategory.ProductsList = &productDetailsList
+		}
+
+		var categoryId int64
+		var categoryName string
+		childCategoryIndex := 0
+		for results.Next() {
+			err = results.Scan(&categoryId, &categoryName)
+			if err != nil {
+				return err
+			}
+			childCategory := CategoryDetails{}
+			childCategory.CategoryId = categoryId
+			childCategory.CategoryName = categoryName
+			(*currentCategory).ChildCategories = append((*currentCategory).ChildCategories, &childCategory)
+			categoryQueue = append(categoryQueue,&childCategory)
+			childCategoryIndex +=1
+		}
+		categoryQueue = categoryQueue[1:]
+	}
+
+	*cd = *rootCategory
+	return nil
+}
+
+func (cd *CategoryDetails) CreateCategory(db *sql.DB) error {
+	stmt, err := db.Prepare("INSERT INTO category (category_id, category_name, parent_category_id) VALUES (?, ?, ?)")
+	if err != nil{
+		return err
+	}
+	if cd.ParentCategoryId == -1 {
+		_, err = stmt.Exec(cd.CategoryId, cd.CategoryName, nil)
+
+	}else {
+		_, err = stmt.Exec(cd.CategoryId, cd.CategoryName, cd.ParentCategoryId)
+	}
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (cd *CategoryDetails) DeleteCategory(db *sql.DB) error {
+
+	updateProductCategoryStmt, err := db.Prepare("delete from  product_category  where category_id= ?")
+	if err != nil{
+		return err
+	}
+	_, err = updateProductCategoryStmt.Exec(cd.CategoryId)
+	if err != nil {
+		return err
+	}
+
+	stmt, err := db.Prepare("delete from category where category_id=?")
+	if err != nil{
+		return err
+	}
+	res, err := stmt.Exec(cd.CategoryId)
+	if err != nil {
+		return err
+	}else {
+		rowEffected, err1 := res.RowsAffected()
+		if err1 != nil {
+			return err1
+		} else if rowEffected == 0 {
+			errMsg := "No category present with id: " +strconv.FormatInt(cd.CategoryId, 10)
+			return errors.New(errMsg)
+		}
+	}
+
+	return nil
+}
+
+func (cd *CategoryDetails) UpdateCategory(db *sql.DB) error {
+	if cd.CategoryName != "" {
+		stmt, err := db.Prepare("update  category set category_name = ? where category_id= ?")
+		if err != nil{
+			return err
+		}
+		_, err = stmt.Exec(cd.CategoryName, cd.CategoryId)
+		if err != nil{
+			return err
+		}
+	}
+	if cd.ParentCategoryId != -1 {
+		stmt, err := db.Prepare("update  category set parent_category_id = ? where category_id= ?")
+		if err != nil{
+			return err
+		}
+		_, err = stmt.Exec(cd.ParentCategoryId, cd.CategoryId)
+		if err != nil{
+			return err
+		}
+	}
+
+	return nil
+}
 
 
 func GetChildProductIdsList(db *sql.DB, categoryId int64) ([]int64,error) {
@@ -77,174 +200,3 @@ func GetChildProductsList(db *sql.DB, categoryId int64)[]ProductDetails{
 
 
 }
-func (cd *CategoryDetails) GetCategory(db *sql.DB) error {
-	categoryQueue := []*CategoryDetails{}
-
-	queryResult, err := db.Query("select category_name from category where category_id = ?", cd.CategoryId)
-	if err != nil {
-		return err
-	}
-	has_results := false
-	for queryResult.Next() {
-		has_results = true
-		err = queryResult.Scan(&cd.CategoryName)
-		if err != nil {
-			return err
-		}
-	}
-	if (!has_results) {
-		return sql.ErrNoRows
-	}
-
-	categoryDetails := CategoryDetails{CategoryId: cd.CategoryId, CategoryName: cd.CategoryName}
-	categoryQueue = append(categoryQueue,&categoryDetails)
-	rootCategory := categoryQueue[0]
-
-	for len(categoryQueue)>=1 {
-		currentCategory := categoryQueue[0]
-		results, err := db.Query("select category_id,category_name from category where parent_category_id = ?", currentCategory.CategoryId)
-		if err != nil {
-			return err
-		}
-		productDetailsList := GetChildProductsList(db,currentCategory.CategoryId)
-		if len(productDetailsList) >=1 {
-			currentCategory.ProductsList = &productDetailsList
-		}
-
-		var categoryId int64
-		var categoryName string
-		childCategoryIndex := 0
-		for results.Next() {
-			err = results.Scan(&categoryId, &categoryName)
-			if err != nil {
-				return err
-			}
-			childCategory := CategoryDetails{}
-			childCategory.CategoryId = categoryId
-			childCategory.CategoryName = categoryName
-			(*currentCategory).ChildCategories = append((*currentCategory).ChildCategories, &childCategory)
-			categoryQueue = append(categoryQueue,&childCategory)
-			childCategoryIndex +=1
-		}
-		categoryQueue = categoryQueue[1:]
-	}
-
-	*cd = *rootCategory
-	return nil
-}
-
-func (cd *CategoryDetails) updateCategory(db *sql.DB) error {
-	return errors.New("Not implemented")
-}
-
-func (cd *CategoryDetails) DeleteCategory(db *sql.DB) error {
-
-	updateProductCategoryStmt, err := db.Prepare("delete from  product_category  where category_id= ?")
-	if err != nil{
-		return err
-	}
-	_, err = updateProductCategoryStmt.Exec(cd.CategoryId)
-	if err != nil {
-		return err
-	}
-
-	stmt, err := db.Prepare("delete from category where category_id=?")
-	if err != nil{
-		return err
-	}
-	res, err := stmt.Exec(cd.CategoryId)
-	if err != nil {
-		return err
-	}else {
-		rowEffected, err1 := res.RowsAffected()
-		if err1 != nil {
-			return err1
-		} else if rowEffected == 0 {
-			errMsg := "No category present with id: " +strconv.FormatInt(cd.CategoryId, 10)
-			return errors.New(errMsg)
-		}
-	}
-
-	return nil
-}
-
-func (cd *CategoryDetails) CreateCategory(db *sql.DB) error {
-	stmt, err := db.Prepare("INSERT INTO category (category_id, category_name, parent_category_id) VALUES (?, ?, ?)")
-	if err != nil{
-		return err
-	}
-	if cd.ParentCategoryId == -1 {
-		_, err = stmt.Exec(cd.CategoryId, cd.CategoryName, nil)
-
-	}else {
-		_, err = stmt.Exec(cd.CategoryId, cd.CategoryName, cd.ParentCategoryId)
-	}
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-
-//func GetChildVariantsIdsList(db *sql.DB, productId int64) ([]int64,error) {
-//	results, err := db.Query("select variant_id from variant where product_id = ?", productId)
-//	if err != nil {
-//		return nil, err
-//	}
-//	defer results.Close()
-//
-//	var variantId int64
-//	has_results := false
-//	variantIdList := []int64{}
-//	for results.Next() {
-//		has_results = true
-//		err = results.Scan(&variantId)
-//		if err != nil {
-//			return nil, err
-//		}
-//		variantIdList = append(variantIdList, variantId)
-//	}
-//	if (!has_results) {
-//		return nil, sql.ErrNoRows
-//	}
-//	return variantIdList, nil
-//}
-//
-//func GetVariantDetail(variantDetailsChan chan VariantDetails, variantId int64,db *sql.DB){
-//	variant := VariantDetails{VariantId: variantId}
-//	if err := variant.GetVariant(db); err != nil {
-//		log.Println(err)
-//	} else {
-//		variantDetailsChan <- variant
-//	}
-//
-//}
-//
-//func GetChildVariantsDetailsList(variantIdsList []int64, db *sql.DB) []VariantDetails {
-//	variantDetailsChan := make(chan VariantDetails)
-//	defer close(variantDetailsChan)
-//
-//	variantDetailsList := []VariantDetails{}
-//
-//	for _, variantId := range variantIdsList {
-//		go GetVariantDetail(variantDetailsChan,variantId, db)
-//	}
-//
-//	totalVariantChild := len(variantIdsList)
-//	for totalVariantChild > 0 {
-//		variantDetailsList = append(variantDetailsList, <-variantDetailsChan)
-//		totalVariantChild -=1
-//	}
-//	return variantDetailsList
-//}
-//
-//func DeleteChildVariant(variantDeleteChan chan bool, variantId int64,db *sql.DB) {
-//	variant := VariantDetails{VariantId: variantId}
-//	if err := variant.DeleteVariant(db); err != nil {
-//		log.Println("Error deleting child variant: ",err)
-//		variantDeleteChan <- false
-//	} else {
-//		variantDeleteChan <- true
-//	}
-//
-//}

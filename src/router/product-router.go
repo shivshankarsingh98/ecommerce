@@ -13,7 +13,7 @@ import (
 func (pcs *ProductCatalogueService) initializeProductRoutes() {
 	pcs.Router.HandleFunc("/product", pcs.createProduct).Methods("POST")//create product
 	pcs.Router.HandleFunc("/product/{id:[0-9]+}", pcs.getProduct).Methods("GET")//get product
-	//pcs.Router.HandleFunc("/product/{id:[0-9]+}", pcs.updateProduct).Methods("PUT")//update product
+	pcs.Router.HandleFunc("/product/{id:[0-9]+}", pcs.updateProduct).Methods("PUT")//update product
 	pcs.Router.HandleFunc("/product/{id:[0-9]+}", pcs.deleteProduct).Methods("DELETE")//delete product
 }
 
@@ -81,33 +81,51 @@ func (pcs *ProductCatalogueService) createProduct(w http.ResponseWriter, r *http
 }
 
 
-//func (pcs *ProductCatalogueService) updateProduct(w http.ResponseWriter, r *http.Request) {
-//  log.Println("PUT product Request from: ",r.RemoteAddr)
+func (pcs *ProductCatalogueService) updateProduct(w http.ResponseWriter, r *http.Request) {
+	log.Println("PUT product Request from: ",r.RemoteAddr)
 
-//	vars := mux.Vars(r)
-//	id, err := strconv.Atoi(vars["id"])
-//	if err != nil {
-//		respondWithError(w, http.StatusBadRequest, "Invalid product ID")
-//		return
-//	}
-//
-//	var p product
-//	decoder := json.NewDecoder(r.Body)
-//	if err := decoder.Decode(&p); err != nil {
-//		respondWithError(w, http.StatusBadRequest, "Invalid resquest payload")
-//		return
-//	}
-//	defer r.Body.Close()
-//	p.ID = id
-//
-//	if err := p.updateProduct(a.DB); err != nil {
-//		respondWithError(w, http.StatusInternalServerError, err.Error())
-//		return
-//	}
-//
-//	respondWithJSON(w, http.StatusOK, p)
-//}
-//
+	vars := mux.Vars(r)
+	id, err := strconv.ParseInt(vars["id"], 10, 64)
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, "Invalid product ID")
+		return
+	}
+	//pro_update_1 := map[string]string{
+	//
+	//	"category_ids": "3,1",
+	//}
+
+	queryParam := r.URL.Query()
+
+
+	product := model.ProductDetails{ProductId: id}
+	product.ProductName = queryParam.Get("product_name")
+	product.Description = queryParam.Get("description")
+	product.ProductImageUrl = queryParam.Get("url")
+
+
+	//if productIdStr := queryParam.Get("product_id");productIdStr != "" {
+	//	productId, err := strconv.ParseInt(productIdStr, 10,64)
+	//	if err != nil {
+	//		respondWithError(w, http.StatusBadRequest, "Invalid product id")
+	//		return
+	//	}else {
+	//		variant.ProductId = productId
+	//	}
+	//}else{
+	//	variant.ProductId = -1
+	//}
+
+
+
+	if err := product.UpdateProduct(pcs.DB); err != nil {
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	respondWithJSON(w, http.StatusOK, product)
+}
+
 
 func (pcs *ProductCatalogueService) deleteProduct(w http.ResponseWriter, r *http.Request) {
 	log.Println("DELETE product Request from: ",r.RemoteAddr)

@@ -45,6 +45,8 @@ func PrintUrl(queryMap map[string]string, path string, msg string) string{
 //category url4:  http://127.0.0.1:8080/category?category_id=3&category_name=hair&parent_category_id=1&q=dotnet
 
 //variant update url1:  http://127.0.0.1:8080/variant/36?mrp=90&product_id=22&q=dotnet&size=88ml&variant_name=quantity
+//category update url1:  http://127.0.0.1:8080/category/1?category_name=clothing&parent_category_id=6&q=dotnet
+//product update url1:  http://127.0.0.1:8080/product/15?category_ids=3%2C1&description=grow+hair+again&product_name=hair+growth&q=dotnet&url=https%3A%2F%2Fwww.amazon.in%2Fgrowth-%3Fdchild%3D1%26keywords%3Dpuma%2Bshirt%26qid%3D1610287417%26sr%3D8-3
 
 
 
@@ -160,18 +162,10 @@ func GenerateUrl(){
 	urlList = append(urlList,PrintUrl(cat_3, cat_path,"category url3: "))
 	urlList = append(urlList,PrintUrl(cat_4, cat_path,"category url4: "))
 
-	//sendPostReq(urlList)
+	sendPostReq(urlList)
 
 	var_update_path := "variant/36"
 
-	//var_1 := map[string]string{
-	//	"variant_id": "36",
-	//	"variant_name": "quantity",
-	//	"mrp": "549.2222",
-	//	"size": "30ml",
-	//	"discount_price": "100",
-	//	"product_id": "22",
-	//}
 	var_update_1 := map[string]string{
 		"variant_name": "quantity",
 		"mrp": "90",
@@ -179,6 +173,26 @@ func GenerateUrl(){
 		"product_id": "22",
 	}
 	urlList = append(urlList,PrintUrl(var_update_1, var_update_path,"variant update url1: "))
+
+	cat_update_path := "category/1"
+
+	cat_update_1 := map[string]string{
+		"category_name": "clothing",
+		"parent_category_id": "6",
+	}
+
+	urlList = append(urlList,PrintUrl(cat_update_1, cat_update_path,"category update url1: "))
+
+	pro_update_path:= "product/15"
+
+	pro_update_1 := map[string]string{
+		"product_name": "hair growth",
+		"description": "grow hair again",
+		"url": "https://www.amazon.in/growth-?dchild=1&keywords=puma+shirt&qid=1610287417&sr=8-3",
+		"category_ids": "3,1",
+	}
+
+	urlList = append(urlList,PrintUrl(pro_update_1, pro_update_path,"product update url1: "))
 
 }
 
