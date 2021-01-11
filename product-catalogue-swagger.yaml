@@ -1,0 +1,329 @@
+swagger: "2.0"
+info:
+  description: "These REST services will be used to maintain the product catalogue of an ecommerce company"
+  version: 1.0.0
+  title: REST Services for Product Catalogue
+tags:
+  - name: variant
+    description: Operations on variant
+  - name: product
+    description: Operations on product
+  - name: category
+    description: Operations on category
+
+
+schemes:
+  - http
+paths:
+  /variant:
+    post:
+      tags:
+        - variant
+      summary: Add a new variant to the product
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: variant_id
+          type: integer
+          required: true
+        - in: query
+          name: variant_name
+          type: string
+          required: false
+        - in: query
+          name: mrp
+          type: number
+          required: true
+        - in: query
+          name: size
+          type: string
+          required: false
+        - in: query
+          name: discount_price
+          type: number
+          required: false
+        - in: query
+          name: product_id
+          type: integer
+          required: true
+      responses:
+        "500":
+          description: Duplicate entry
+        "201":
+          description: Variant created
+
+  /variant/{id}:
+    get:
+      tags:
+        - variant
+      summary: Find variant details by ID
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID of variant to return
+          required: true
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: Successful operation
+        "404":
+          description: Variant not found
+
+    put:
+      tags:
+        - variant
+      summary: Update an existing variant
+      description: ""
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID of variant to update
+          required: true
+          type: integer
+          format: int64
+        - in: query
+          name: variant_name
+          type: string
+          required: false
+        - in: query
+          name: mrp
+          type: number
+          required: false
+        - in: query
+          name: size
+          type: string
+          required: false
+        - in: query
+          name: discount_price
+          type: number
+          required: false
+        - in: query
+          name: product_id
+          type: integer
+          required: false
+      responses:
+        "200":
+          description: Variant entry updated
+    delete:
+      tags:
+        - variant
+      summary: Deletes a variant
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID of variant to delete
+          required: true
+          type: integer
+          format: int64
+      responses:
+        "500":
+          description: No variant present with this id
+        "200":
+          description: Variant deleted
+  /product:
+    post:
+      tags:
+        - product
+      summary: Add a new product
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: product_id
+          type: integer
+          required: true
+        - in: query
+          name: product_name
+          type: string
+          required: true
+        - in: query
+          name: description
+          type: string
+          required: false
+        - in: query
+          name: url
+          type: string
+          required: false
+        - in: query
+          name: category_ids
+          type: string
+          required: false
+          description: list of category id this product belong to , commas seperated values
+      responses:
+        "500":
+          description: Duplicate entry
+        "201":
+          description: Product created
+
+  /product/{id}:
+    get:
+      tags:
+        - product
+      summary: Find product details by ID
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID of product to return
+          required: true
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: Successful operation
+        "404":
+          description: Product not found
+
+    put:
+      tags:
+        - product
+      summary: Update an existing product
+      description: ""
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID of product to update
+          required: true
+          type: integer
+          format: int64
+        - in: query
+          name: product_name
+          type: string
+          required: false
+        - in: query
+          name: description
+          type: string
+          required: false
+        - in: query
+          name: url
+          type: string
+          required: false
+      responses:
+        "200":
+          description: Product entry updated
+    delete:
+      tags:
+        - product
+      summary: Deletes a product
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID of product to delete
+          required: true
+          type: integer
+          format: int64
+      responses:
+        "500":
+          description: No product present with this id
+        "200":
+          description: Product deleted
+  /category:
+    post:
+      tags:
+        - category
+      summary: Add a new category
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: category_id
+          type: integer
+          required: true
+        - in: query
+          name: category_name
+          type: string
+          required: true
+        - in: query
+          name: parent_category_id
+          type: number
+          required: false
+      responses:
+        "500":
+          description: Duplicate entry
+        "201":
+          description: Category created
+
+  /category/{id}:
+    get:
+      tags:
+        - category
+      summary: Find category details by ID
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID of category to return
+          required: true
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: Successful operation
+        "404":
+          description: Category not found
+
+    put:
+      tags:
+        - category
+      summary: Update an existing category
+      description: ""
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID of category to update
+          required: true
+          type: integer
+          format: int64
+        - in: query
+          name: category_name
+          type: string
+          required: false
+        - in: query
+          name: parent_category_id
+          type: number
+          required: false
+      responses:
+        "200":
+          description: Category entry updated
+    delete:
+      tags:
+        - category
+      summary: Deletes a category
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID of category to delete
+          required: true
+          type: integer
+          format: int64
+      responses:
+        "500":
+          description: No category present with this id
+        "200":
+          description: Category deleted
+
+
