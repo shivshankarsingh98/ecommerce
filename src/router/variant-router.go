@@ -119,7 +119,7 @@ func (pcs *ProductCatalogueService) updateVariant(w http.ResponseWriter, r *http
 	vars := mux.Vars(r)
 	id, err := strconv.ParseInt(vars["id"], 10, 64)
 	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid product ID")
+		respondWithError(w, http.StatusBadRequest, "Invalid variant ID")
 		return
 	}
 	queryParam := r.URL.Query()

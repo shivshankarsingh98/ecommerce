@@ -21,7 +21,7 @@ func (pcs *ProductCatalogueService) getCategory(w http.ResponseWriter, r *http.R
 	vars := mux.Vars(r)
 	id, err := strconv.ParseInt(vars["id"], 10, 64)
 	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid variant ID")
+		respondWithError(w, http.StatusBadRequest, "Invalid category ID")
 		return
 	}
 
@@ -49,7 +49,7 @@ func (pcs *ProductCatalogueService) createCategory(w http.ResponseWriter, r *htt
 	if categoryIdStr := queryParam.Get("category_id");categoryIdStr != "" {
 		categoryId, err := strconv.ParseInt(categoryIdStr, 10,64)
 		if err != nil {
-			respondWithError(w, http.StatusBadRequest, "Invalid product id")
+			respondWithError(w, http.StatusBadRequest, "Invalid category id")
 			return
 		}else {
 			category.CategoryId = categoryId
@@ -59,7 +59,7 @@ func (pcs *ProductCatalogueService) createCategory(w http.ResponseWriter, r *htt
 	if parentCategoryIdStr := queryParam.Get("parent_category_id");parentCategoryIdStr != "" {
 		parentCategoryId, err := strconv.ParseInt(parentCategoryIdStr, 10,64)
 		if err != nil {
-			respondWithError(w, http.StatusBadRequest, "Invalid product id")
+			respondWithError(w, http.StatusBadRequest, "Invalid parent category id")
 			return
 		}else {
 			category.ParentCategoryId = parentCategoryId
@@ -84,7 +84,7 @@ func (pcs *ProductCatalogueService) updateCategory(w http.ResponseWriter, r *htt
 	vars := mux.Vars(r)
 	id, err := strconv.ParseInt(vars["id"], 10, 64)
 	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid product ID")
+		respondWithError(w, http.StatusBadRequest, "Invalid category ID")
 		return
 	}
 
@@ -118,7 +118,7 @@ func (pcs *ProductCatalogueService) deleteCategory(w http.ResponseWriter, r *htt
 	vars := mux.Vars(r)
 	id, err := strconv.ParseInt(vars["id"], 10, 64)
 	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid variant ID")
+		respondWithError(w, http.StatusBadRequest, "Invalid category ID")
 		return
 	}
 

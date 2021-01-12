@@ -51,7 +51,6 @@ func (cd *CategoryDetails) GetCategory(db *sql.DB) error {
 
 		var categoryId int64
 		var categoryName string
-		childCategoryIndex := 0
 		for results.Next() {
 			err = results.Scan(&categoryId, &categoryName)
 			if err != nil {
@@ -62,7 +61,6 @@ func (cd *CategoryDetails) GetCategory(db *sql.DB) error {
 			childCategory.CategoryName = categoryName
 			(*currentCategory).ChildCategories = append((*currentCategory).ChildCategories, &childCategory)
 			categoryQueue = append(categoryQueue,&childCategory)
-			childCategoryIndex +=1
 		}
 		categoryQueue = categoryQueue[1:]
 	}
